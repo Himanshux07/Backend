@@ -84,9 +84,9 @@ userSchema.methods.generateRefreshToken=function(){
             avatar: this.avatar
             
         },
-        process.env.ACCESS_TOKEN_SECRET,
+        process.env.REFRESH_TOKEN_SECRET,
         {
-            expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN 
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN 
         }
     )
 }
