@@ -105,7 +105,8 @@ const LoginUser = asyncHandler(async (req,res)=>{
 
 })
 
+const LogoutUser = asyncHandler(async (req,res)=>{
+    
+})
 
-   
-
-export { registerUser, LoginUser }
+export { registerUser, LoginUser, LogoutUser }
