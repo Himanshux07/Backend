@@ -195,6 +195,23 @@ const getCurrentUser = asyncHandler(async (req,res)=>{
     )
 })
 
+const updateUserProfile = asyncHandler(async (req,res)=>{
+    const {fullname,username} = req.body 
+    if(!fullname || !username){
+        throw new ApiError(400,"All fields are required")
+    }
+    
+    User.findByIdAndUpdate(req.user._id,{
+        $set:{
+            fullname,
+            username: username.toLowerCase()
+        }
+    },{new: true}).select("-password -refreshToken")
+       
+    return res.status(200).json(
+        new ApiResponse(200, user, "User profile updated successfully")
+    )
+})
 
 
-export { registerUser, LoginUser, LogoutUser, refreshAccessToken, changePassword, getCurrentUser}
+export { registerUser, LoginUser, LogoutUser, refreshAccessToken, changePassword, getCurrentUser, updateUserProfile}
