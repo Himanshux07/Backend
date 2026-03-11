@@ -244,5 +244,30 @@ const updateAvatar = asyncHandler(async (req,res)=>{
     )
 })
 
+const updateCoverImage= asyncHandler( async (req,res) =>{
 
-export { registerUser, LoginUser, LogoutUser, refreshAccessToken, changePassword, getCurrentUser, updateUserProfile, updateAvatar}
+    const coverImageLocalPath = req.file?.path
+
+    if(!coverImageLocalPath){
+        throw new ApiError(400,"Cover image is required")
+    }
+
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+
+    if(!coverImage){
+        throw new ApiError(500,"Error while uploading cover image")
+    }
+
+    await User.findByIdAndUpdate(req.user._id,{
+        $set:{
+            coverImage: coverImage.url
+        }
+    },{new: true}).select("-password -refreshToken")
+    
+    return res.status(200).json(
+        new ApiResponse(200, coverImage.url, "User cover image updated successfully")
+    )
+})
+
+
+export { registerUser, LoginUser, LogoutUser, refreshAccessToken, changePassword, getCurrentUser, updateUserProfile, updateAvatar, updateCoverImage}
