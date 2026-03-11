@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
 
 const generateAccessTokenandRefreshToken = async(userId) => {
+
     const user = await User.findById(userId)
     const accessToken= user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
@@ -65,6 +66,7 @@ const registerUser = asyncHandler(async (req,res)=>{
 })
 
 const LoginUser = asyncHandler(async (req,res)=>{
+
     const {email,username,password} = req.body
 
     if(!username && !email){
@@ -107,6 +109,7 @@ const LoginUser = asyncHandler(async (req,res)=>{
 })
 
 const LogoutUser = asyncHandler(async (req,res)=>{
+
     await User.findByIdAndUpdate(req.user._id,
     { 
         $set :{
@@ -129,6 +132,7 @@ const LogoutUser = asyncHandler(async (req,res)=>{
 })
 
 const refreshAccessToken = asyncHandler(async (req,res)=>{
+
     try {
         const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken
     
@@ -169,6 +173,7 @@ const refreshAccessToken = asyncHandler(async (req,res)=>{
 })
 
 const changePassword = asyncHandler(async (req,res)=>{
+
     const {currentPassword, newPassword} = req.body
     if(!currentPassword || !newPassword ){
         throw new ApiError(400,"All fields are required")
@@ -188,6 +193,7 @@ const changePassword = asyncHandler(async (req,res)=>{
 })
 
 const getCurrentUser = asyncHandler(async (req,res)=>{
+
     const user = await User.findById(req.user._id).select("-password -refreshToken")  
     
     return res.status(200).json(
@@ -196,6 +202,7 @@ const getCurrentUser = asyncHandler(async (req,res)=>{
 })
 
 const updateUserProfile = asyncHandler(async (req,res)=>{
+
     const {fullname,username} = req.body 
     if(!fullname || !username){
         throw new ApiError(400,"All fields are required")
@@ -213,5 +220,29 @@ const updateUserProfile = asyncHandler(async (req,res)=>{
     )
 })
 
+const updateAvatar = asyncHandler(async (req,res)=>{
 
-export { registerUser, LoginUser, LogoutUser, refreshAccessToken, changePassword, getCurrentUser, updateUserProfile}
+    const avatarLocalPath = req.file?.path
+
+    if(!avatarLocalPath){
+        throw new ApiError(400,"Avatar image is required")
+    }
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+    if(!avatar){
+        throw new ApiError(500,"Error while uploading avatar")
+    }
+
+    await User.findByIdAndUpdate(req.user._id,{
+        $set:{
+            avatar: avatar.url
+        }
+    },{new: true}).select("-password -refreshToken")
+
+    return res.status(200).json(
+        new ApiResponse(200, avatar.url, "User avatar updated successfully")
+    )
+})
+
+
+export { registerUser, LoginUser, LogoutUser, refreshAccessToken, changePassword, getCurrentUser, updateUserProfile, updateAvatar}
