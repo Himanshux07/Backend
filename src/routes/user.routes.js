@@ -21,5 +21,10 @@ router.route("/register").post(
 router.route("/login").post(LoginUser)
 router.route("/logout").post(verifyJWT, LogoutUser)
 router.route("/refresh-token").post(refreshAccessToken)
+router.route("/update-avatar").put(verifyJWT, updateAvatar)
+router.route("/update-cover-image").put(verifyJWT, updateCoverImage)
+router.route("/update-profile").put(verifyJWT, updateUserProfile)
+router.route("/change-password").put(verifyJWT, changePassword)
+router.route("/me").get(verifyJWT, getCurrentUser)
 
 export default router
