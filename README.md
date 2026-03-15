@@ -75,28 +75,24 @@ npm install
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file in the project root.
+Set the required environment variables in your local environment configuration.
 
-Example:
+Required keys:
 
-```env
-PORT=5000
-MONGO_URL=your_mongodb_connection_string_without_db_name
-CORS_ORIGIN=*
-
-ACCESS_TOKEN_SECRET=your_access_token_secret
-ACCESS_TOKEN_EXPIRES_IN=1d
-REFRESH_TOKEN_SECRET=your_refresh_token_secret
-REFRESH_TOKEN_EXPIRES_IN=10d
-
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-```
+- `PORT`
+- `MONGO_URL`
+- `CORS_ORIGIN`
+- `ACCESS_TOKEN_SECRET`
+- `ACCESS_TOKEN_EXPIRES_IN`
+- `REFRESH_TOKEN_SECRET`
+- `REFRESH_TOKEN_EXPIRES_IN`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
 
 Notes:
 
-- DB name is appended in code from `src/constant.js` (`videotube`).
+- Database name is appended in code from `src/constant.js` (`videotube`).
 - Uploaded files are first stored locally in `public/uploads`, then uploaded to Cloudinary.
 
 ### 4. Run in Development
@@ -215,8 +211,8 @@ Error handling is based on custom `ApiError` and async wrapper utility.
 
 ## Security Notes
 
-- Never commit real secrets in `.env`.
-- Rotate exposed credentials immediately if they were pushed/shared.
+- Never commit secrets or API keys to source control.
+- Keep credentials only in local/private environment configuration.
 - In production, keep `secure: true` cookies and use HTTPS.
 
 ## Known Issues (Current Code)
