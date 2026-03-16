@@ -344,37 +344,36 @@ const getUserChannelprofile = asyncHandler(async (req,res)=>{
 })
 
 const addVideoToWatchHistory = asyncHandler(async (req,res)=>{
+
     const { videoId } = req.params
 
-    if(!videoId){
-        throw new ApiError(400, "Video id is required")
-    }
-
     if(!mongoose.Types.ObjectId.isValid(videoId)){
-        throw new ApiError(400, "Invalid video id")
+        throw new ApiError(400,"Invalid video id")
     }
 
     const video = await Video.findById(videoId).select("_id")
-    if(!video){
-        throw new ApiError(404, "Video not found")
-    }
 
-    // Keep only one entry per video and move the latest watched video to the end.
-    await User.findByIdAndUpdate(req.user._id, {
-        $pull: { watchHistory: video._id }
-    })
+    if(!video){
+        throw new ApiError(404,"Video not found")
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
         req.user._id,
         {
-            $push: { watchHistory: video._id }
+            $pull:{ watchHistory: video._id },
+            $push:{ watchHistory: video._id }
         },
-        { new: true }
+        { new:true }
     ).select("watchHistory")
 
     return res.status(200).json(
-        new ApiResponse(200, updatedUser?.watchHistory || [], "Video added to watch history successfully")
+        new ApiResponse(
+            200,
+            updatedUser.watchHistory,
+            "Video added to watch history successfully"
+        )
     )
+
 })
 
 const getWatchHistory = asyncHandler(async (req,res)=>{
