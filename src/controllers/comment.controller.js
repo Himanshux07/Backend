@@ -5,10 +5,33 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
 const getVideoComments = asyncHandler(async (req, res) => {
-    //TODO: get all comments for a video
-    const {videoId} = req.params
-    const {page = 1, limit = 10} = req.query
+    const { videoId } = req.params
+    const { page = 1, limit = 10 } = req.query
 
+    if (!mongoose.Types.ObjectId.isValid(videoId)) {
+        throw new ApiError(400, "Invalid video ID")
+    }
+
+    const pageNum = parseInt(page)
+    const limitNum = parseInt(limit)
+    const skip = (pageNum - 1) * limitNum
+
+    const comments = await Comment.find({ video: videoId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .populate("owner", "username avatar")
+
+    const totalComments = await Comment.countDocuments({ video: videoId })
+
+    return res.status(200).json(
+        new ApiResponse(200, {
+            comments,
+            totalComments,
+            currentPage: pageNum,
+            totalPages: Math.ceil(totalComments / limitNum)
+        }, "Comments retrieved successfully")
+    )
 })
 
 const addComment = asyncHandler(async (req, res) => {
