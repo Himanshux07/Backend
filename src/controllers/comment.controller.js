@@ -103,6 +103,30 @@ const updateComment = asyncHandler(async (req, res) => {
 
 const deleteComment = asyncHandler(async (req, res) => {
     // TODO: delete a comment
+
+    const { commentId } = req.params
+    const user = req.user
+
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+        throw new ApiError(400, "Invalid comment ID")
+    }
+    if (!user) {
+        throw new ApiError(401, "Unauthorized")
+    }
+    const comment = await Comment.findById(commentId)
+    if (!comment) {
+        throw new ApiError(404, "Comment not found")
+    }
+    if (comment.owner.toString() !== user._id.toString()) {
+        throw new ApiError(403, "Forbidden: You can only delete your own comments")
+    }
+    await comment.remove()
+
+    return res.status(200).json(
+        new ApiResponse(200, null, "Comment deleted successfully")
+    )
+
+    
 })
 
 export {
