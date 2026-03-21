@@ -67,7 +67,38 @@ const addComment = asyncHandler(async (req, res) => {
 })
 
 const updateComment = asyncHandler(async (req, res) => {
-    // TODO: update a comment
+    const { commentId } = req.params
+    const { content } = req.body
+    const user = req.user
+
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+        throw new ApiError(400, "Invalid comment ID")
+    }
+
+    if (!content || content.trim() === "") {
+        throw new ApiError(400, "Updated content cannot be empty")
+    }
+
+    if (!user) {
+        throw new ApiError(401, "Unauthorized")
+    }
+
+    const comment = await Comment.findById(commentId)
+
+    if (!comment) {
+        throw new ApiError(404, "Comment not found")
+    }
+
+    if (comment.owner.toString() !== user._id.toString()) {
+        throw new ApiError(403, "Forbidden: You can only update your own comments")
+    }
+
+    comment.content = content.trim()
+    await comment.save()
+
+    return res.status(200).json(
+        new ApiResponse(200, comment, "Comment updated successfully")
+    )
 })
 
 const deleteComment = asyncHandler(async (req, res) => {
