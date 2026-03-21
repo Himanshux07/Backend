@@ -36,6 +36,34 @@ const getVideoComments = asyncHandler(async (req, res) => {
 
 const addComment = asyncHandler(async (req, res) => {
     // TODO: add a comment to a video
+
+    const { videoId } = req.params
+    const { content } = req.body
+    const user = req.user
+
+    if(!mongoose.Types.ObjectId.isValid(videoId)) {
+        throw new ApiError(400, "Invalid video ID")
+    }
+    if(!content || content.trim() === "") {
+        throw new ApiError(400, "Comment content cannot be empty")
+    }
+    if(!user) {
+        throw new ApiError(401, "Unauthorized")
+    }
+    const video = await Video.findById(videoId)
+    if (!video) {
+        throw new ApiError(404, "Video not found")
+    }
+
+    const comment = await Comment.create({
+        content: content.trim(),
+        video: videoId,
+        owner: user._id
+    })
+
+    return res.status(201).json(
+        new ApiResponse(201, comment, "Comment added successfully")
+    )   
 })
 
 const updateComment = asyncHandler(async (req, res) => {
