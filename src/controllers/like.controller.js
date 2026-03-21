@@ -74,6 +74,22 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
     }
 
     const user = req.user
+    const tweet = await Tweet.findById(tweetId)
+    if (!tweet) {
+        throw new ApiError(404, "Tweet not found")
+    }
+    const existingLike = await Like.findOne({ user: user._id, tweet: tweetId })
+
+    if(existingLike) {
+        await existingLike.remove()
+        return res.status(200).json(
+            new ApiResponse(200, null, "Tweet unliked successfully")
+        )
+    }
+    const like = await Like.create({ user: user._id, tweet: tweetId })
+    return res.status(200).json(
+        new ApiResponse(200, like, "Tweet liked successfully")
+    )
 
 })
 
