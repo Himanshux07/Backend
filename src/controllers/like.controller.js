@@ -1,5 +1,7 @@
 import mongoose, {isValidObjectId} from "mongoose"
 import {Like} from "../models/like.models.js"
+import {Comment} from "../models/comment.models.js"
+import {Video} from "../models/video.models.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
@@ -11,6 +13,10 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid video ID")
     }
     const user = req.user
+    const video = await Video.findById(videoId)
+    if (!video) {
+        throw new ApiError(404, "Video not found")
+    }
     const existingLike = await Like.findOne({ user: user._id, video: videoId })
 
     if(existingLike) {
@@ -62,9 +68,14 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 
 const toggleTweetLike = asyncHandler(async (req, res) => {
     const {tweetId} = req.params
-    //TODO: toggle like on tweet
-}
-)
+    
+    if (!isValidObjectId(tweetId)) {
+        throw new ApiError(400, "Invalid tweet ID")
+    }
+
+    const user = req.user
+
+})
 
 const getLikedVideos = asyncHandler(async (req, res) => {
     //TODO: get all liked videos
