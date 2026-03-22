@@ -76,7 +76,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
             $unwind: "$subscriber"
         },
         {
-            $project: {
+            $project: {  // flattering nested subscriber object and returning only necessary fields
                 _id: "$subscriber._id",
                 username: "$subscriber.username",
                 avatar: "$subscriber.avatar",
